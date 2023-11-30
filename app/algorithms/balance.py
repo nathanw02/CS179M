@@ -1,0 +1,2 @@
+def balance(manifest):
+    pass
