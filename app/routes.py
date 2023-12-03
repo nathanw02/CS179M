@@ -1,8 +1,14 @@
+import os
 from flask import Flask, render_template, request
 from algorithms.load import load
 from algorithms.balance import balance
+from util.parse_manifest import parse
 
 app = Flask(__name__)
+
+TEMP_DIR = 'temp'
+
+currentManifest = None
 
 @app.route('/')
 def index():
@@ -42,7 +48,21 @@ def balanceRequest():
 
 @app.route('/manifest', methods = ['POST'])
 def manifest():
-    pass
+    if 'file' in request.files:
+        file = request.files['file']
+
+        file_path = os.path.join(os.path.dirname(__file__), TEMP_DIR, file.filename)
+        file.save(file_path)
+
+        parsed = parse(file_path)
+
+        currentManifest = parsed
+
+        os.remove(file_path)
+
+        return {'Success': 'Uploaded manifest', 'Manifest': currentManifest}
+    else:
+        return {'Error': 'Failed to upload manifest'}
 
 @app.route('/complete', methods = ['POST'])
 def complete():
