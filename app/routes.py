@@ -6,8 +6,10 @@ from util.parse_manifest import parse
 
 app = Flask(__name__)
 
-TEMP_DIR = 'temp'
 
+currentUser = None
+
+TEMP_DIR = 'temp'
 currentManifest = None
 
 @app.route('/')
@@ -16,7 +18,13 @@ def index():
 
 @app.route('/login', methods = ['POST'])
 def login():
-    pass
+    name = request.form.get('name')
+
+    currentUser = name
+
+    # Log in log file later
+
+    return {'Current user': currentUser}
 
 @app.route('/comment', methods = ['POST'])
 def comment():
