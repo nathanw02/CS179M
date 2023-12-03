@@ -4,13 +4,21 @@ from algorithms.balance import balance
 
 app = Flask(__name__)
 
+currentUser = None
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/login', methods = ['POST'])
 def login():
-    pass
+    name = request.form.get('name')
+
+    currentUser = name
+
+    # Log in log file later
+
+    return {'Current user': currentUser}
 
 @app.route('/comment', methods = ['POST'])
 def comment():
