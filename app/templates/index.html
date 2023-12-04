@@ -108,7 +108,7 @@
         <button id="upload-btn" onclick="handleUpload()" class="btn btn-primary">Upload Manifest</button>
         
         <div id="action-btns" class="d-none">
-            <button class="load-btn btn btn-light">Load/Unload</button>
+            <button class="load-btn btn btn-light" onclick="redirectToLoadPage()">Load/Unload</button>
             <button class="balance-btn btn btn-light">Balance</button>
         </div>
 
@@ -166,6 +166,10 @@
 
                 document.getElementById('current-user').textContent = 'Current user: ' + name;
                 document.getElementById('loginModal').style.display = 'none';
+            }
+
+            function redirectToLoadPage() {
+                window.location.href = '/load';
             }
 
         </script>
