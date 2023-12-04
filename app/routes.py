@@ -33,7 +33,7 @@ def comment():
 @app.route('/load', methods = ['GET', 'POST'])
 def loadRequest():
     if request.method == 'GET':
-        return render_template('steps.html')
+        return render_template('steps.html', manifestData=currentManifest)
 
     load_items = request.form.get('load')
     unload_items = request.form.get('unload')
@@ -56,6 +56,7 @@ def balanceRequest():
 
 @app.route('/manifest', methods = ['POST'])
 def manifest():
+    global currentManifest
     if 'file' in request.files:
         file = request.files['file']
 

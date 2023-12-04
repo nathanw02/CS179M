@@ -1,4 +1,5 @@
 import os
+import random
 
 def parse(manifest):
     grid = [[['0', 'NAN'] for _ in range(12)] for _ in range(8)]
@@ -9,10 +10,11 @@ def parse(manifest):
 
             coord = coord[1:-1].split(',')
             weight = weight[1:-1]
-            name = name[:-1]
+            name = name.strip()
+            color = '#{0:06x}'.format(random.randint(0, 0xFFFFFF))
 
             row, col = 8 - int(coord[0]), int(coord[1]) - 1
 
-            grid[row][col] = [int(weight), name]
+            grid[row][col] = [int(weight), name, color]
 
     return grid
