@@ -4,6 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Moveable</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
         <style>
             body {
                 background-color: black;
@@ -12,6 +15,7 @@
                 justify-content: center;
                 height: 100vh;
                 margin: 0;
+                text-align: center;
             }
 
             .grid-container {
@@ -34,16 +38,78 @@
                 overflow: hidden;
             }
 
+            .grid-item.selected {
+                border: 2px solid yellow;
+            }
+
+            #header {
+                position: absolute;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: white;
+            }
+
+            .done-btn {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                width: 200px;
+                height: 50px;
+                font-size: 24px;
+                padding: 12px;
+                background-color: #03ee36;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .container-input {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                border: 1px solid #000;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                display: none;
+                max-width: 400px;
+            }
+
+            .confirmation-popup {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                border: 1px solid #000;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                display: none;
+                max-width: 400px;
+            }
+
+            .confirmation-popup button {
+                margin: 0 10px;
+            }
+
         </style>
+
     </head>
     <body>
+        {% if load %}
+            <h2 id="header">Select containers to unload</h2>
+            <button id="done" class="done-btn btn btn-success" onclick="doneSelecting()">Done</button>
+        {% endif %}
         <div class="grid-container">
             {% for row in range(8) %}
                 {% for col in range(12) %}
                     {% set cellId = 'cell-' + row|string + '-' + col|string %}
                     {% set cellName = manifestData[row][col][1] %}
                     {% if cellName not in ['NAN', 'UNUSED'] %}
-                        <div class="grid-item" id="{{ cellId }}" style="background-color: {{ manifestData[row][col][2] }}">
+                        <div class="grid-item" id="{{ cellId }}" {% if cellId in selectedCells %}selected{% endif %} style="background-color: {{ manifestData[row][col][2] }} " onclick="handleCellClick('{{ cellId }}', '{{ cellName }}')">
                             <div class="name" data-toggle="tooltip" data-placement="top" title="{{ manifestData[row][col][1] }}">{{ manifestData[row][col][1][:5] }}</div>
                         </div>
                     {% elif cellName in ['UNUSED']%}
@@ -54,5 +120,104 @@
                 {% endfor %}
             {% endfor %}
         </div>
+
+        <!-- Container Input -->
+        <div class="container-input container">
+            <label for="containerInput">Enter container information:</label>
+            <input type="text" class="form-control" id="containerInput" onkeydown="handleContainerInput(event)">
+        </div>
+
+        <!-- Confirmation Popup -->
+        <div class="confirmation-popup container">
+            <p>Do you want to add more containers?</p>
+            <button class="btn btn-primary" onclick="addMoreContainers()">Yes</button>
+            <button class="btn btn-secondary" onclick="sendLoadRequest()">No</button>
+        </div>
+
     </body>
+
+    <script>
+        let selectedCells = [];
+        let toLoad = [];
+
+        function handleCellClick(cellId, cellName) {
+            if (cellName !== 'NAN' && cellName !== 'UNUSED') {
+                const index = selectedCells.indexOf(cellId);
+                if (index === -1) {
+                    selectedCells.push(cellId);
+                } else {
+                    selectedCells.splice(index, 1);
+                }
+            }
+
+            updateSelectedCellsIndicator();
+            
+        }
+
+        function updateSelectedCellsIndicator() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            gridItems.forEach(item => {
+                const cellId = item.id;
+                if (selectedCells.includes(cellId)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        function doneSelecting() {
+            document.getElementsByClassName('grid-container')[0].style.display = 'none';
+            document.getElementById('done').style.display = 'none';
+
+            document.getElementById('header').innerHTML = 'Enter containers to load onto ship';
+
+            const containerInput = document.querySelector('.container-input');
+            containerInput.style.display = 'block';
+            document.getElementById('containerInput').focus();
+        }
+
+        function handleContainerInput(event) {
+            if (event.key === 'Enter') {
+                let containerInput = document.getElementById('containerInput');
+                toLoad.push(containerInput.value);
+
+                let confirmationPopup = document.querySelector('.confirmation-popup');
+                confirmationPopup.style.display = 'block';
+            }
+        }
+
+        function addMoreContainers() {
+            const containerInput = document.getElementById('containerInput');
+            containerInput.value = '';
+            containerInput.focus();
+
+            const confirmationPopup = document.querySelector('.confirmation-popup');
+            confirmationPopup.style.display = 'none';
+
+            const containerInputVisible = document.querySelector('.container-input');
+            containerInputVisible.style.display = 'block';
+        }
+
+        async function sendLoadRequest() {
+            document.querySelector('.container-input').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+
+            document.getElementById('header').innerHTML = 'Calculating the fastest set of operations...';
+
+            formData = new FormData();
+            formData.append('load', toLoad);
+            formData.append('unload', selectedCells);
+
+            await fetch('/load', {
+                method: 'POST',
+                body: formData
+            });
+            
+            toLoad = [];
+            selectedCells = [];
+        }
+
+    </script>
+
 </html>

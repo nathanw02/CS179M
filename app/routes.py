@@ -12,6 +12,9 @@ currentUser = None
 TEMP_DIR = 'temp'
 currentManifest = None
 
+loadStatus = False
+balanceStatus = False
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -33,15 +36,20 @@ def comment():
 @app.route('/load', methods = ['GET', 'POST'])
 def loadRequest():
     if request.method == 'GET':
-        return render_template('steps.html', manifestData=currentManifest)
+        loadStatus = True
+        return render_template('steps.html', manifestData=currentManifest, load=loadStatus)
 
-    load_items = request.form.get('load')
-    unload_items = request.form.get('unload')
-    manifest = request.form.get('manifest')
+    load_items = request.form.get('load').split(',')
+    unload_items = request.form.get('unload').split(',')
 
-    steps = load(load_items, unload_items, manifest)
+    load_items = [item for item in load_items if item]
+    unload_items = [(int(r), int(c)) for (r, c) in (cell.split('-')[1:] for cell in unload_items)]
 
-    return steps
+    # TODO
+    # steps = load(load_items, unload_items, currentManifest)
+
+    # return blank for now
+    return render_template('steps.html', manifestData=currentManifest, load=True)
 
 @app.route('/balance', methods = ['GET', 'POST'])
 def balanceRequest():
