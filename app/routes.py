@@ -1,3 +1,4 @@
+import json
 import os
 from flask import Flask, render_template, request
 from algorithms.load import load
@@ -12,8 +13,7 @@ currentUser = None
 TEMP_DIR = 'temp'
 currentManifest = None
 
-loadStatus = False
-balanceStatus = False
+steps = []
 
 @app.route('/')
 def index():
@@ -33,23 +33,29 @@ def login():
 def comment():
     pass
 
+@app.route('/steps', methods = ['GET'])
+def showSteps():
+    return render_template('steps.html', manifestData=currentManifest, steps=steps)
+
+
 @app.route('/load', methods = ['GET', 'POST'])
 def loadRequest():
+    global steps
     if request.method == 'GET':
-        loadStatus = True
-        return render_template('steps.html', manifestData=currentManifest, load=loadStatus)
+        return render_template('load.html', manifestData=currentManifest)
 
     load_items = request.form.get('load').split(',')
     unload_items = request.form.get('unload').split(',')
 
     load_items = [item for item in load_items if item]
-    unload_items = [(int(r), int(c)) for (r, c) in (cell.split('-')[1:] for cell in unload_items)]
 
-    # TODO
-    # steps = load(load_items, unload_items, currentManifest)
+    if unload_items:
+        unload_items = [(int(r) - 1, int(c)) for (r, c) in (cell.split('-')[1:] for cell in unload_items)]
 
-    # return blank for now
-    return render_template('steps.html', manifestData=currentManifest, load=True)
+    steps = load(load_items, unload_items, currentManifest)
+
+    return {'steps': steps}
+
 
 @app.route('/balance', methods = ['GET', 'POST'])
 def balanceRequest():
