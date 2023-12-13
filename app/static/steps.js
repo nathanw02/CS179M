@@ -1,80 +1,77 @@
-let selectedCells = [];
-let toLoad = [];
+let currentStep = 0;
+let steps = [];
+let r1, c1, r2, c2;
 
-function handleCellClick(cellId, cellName) {
-    if (cellName !== 'NAN' && cellName !== 'UNUSED') {
-        const index = selectedCells.indexOf(cellId);
-        if (index === -1) {
-            selectedCells.push(cellId);
-        } else {
-            selectedCells.splice(index, 1);
-        }
-    }
-
-    updateSelectedCellsIndicator();
-    
-}
-
-function updateSelectedCellsIndicator() {
-    const gridItems = document.querySelectorAll('.grid-item');
-    gridItems.forEach(item => {
-        const cellId = item.id;
-        if (selectedCells.includes(cellId)) {
-            item.classList.add('selected');
-        } else {
-            item.classList.remove('selected');
-        }
+function loadSteps(input) {
+    steps = input;
+    document.addEventListener('DOMContentLoaded', (event) => {
+        updateGridWithStep();
+        updateStepDisplay();
     });
 }
 
-function doneSelecting() {
-    document.getElementsByClassName('grid-container')[0].style.display = 'none';
-    document.getElementById('done').style.display = 'none';
-
-    document.getElementById('header').innerHTML = 'Enter containers to load onto ship';
-
-    const containerInput = document.querySelector('.container-input');
-    containerInput.style.display = 'block';
-    document.getElementById('containerInput').focus();
-}
-
-function handleContainerInput(event) {
-    if (event.key === 'Enter') {
-        let containerInput = document.getElementById('containerInput');
-        toLoad.push(containerInput.value);
-
-        let confirmationPopup = document.querySelector('.confirmation-popup');
-        confirmationPopup.style.display = 'block';
+function nextStep() {
+    moveContainer(r1, c1, r2, c2);
+    if (currentStep < steps.length - 1) {
+        currentStep++;
+        updateGridWithStep();
+        updateStepDisplay();
+    } else {
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById("confirmation").style.display = 'block';
     }
 }
 
-function addMoreContainers() {
-    const containerInput = document.getElementById('containerInput');
-    containerInput.value = '';
-    containerInput.focus();
+function updateGridWithStep() {
+    resetGrid();
 
-    const confirmationPopup = document.querySelector('.confirmation-popup');
-    confirmationPopup.style.display = 'none';
+    const [originR, originC, destinationR, desitinationC] = steps[currentStep];
 
-    const containerInputVisible = document.querySelector('.container-input');
-    containerInputVisible.style.display = 'block';
+    highlightCell(originR + 1, originC, 'red');
+    highlightCell(destinationR + 1, desitinationC, 'green');
+
+    r1 = originR + 1;
+    c1 = originC;
+    r2 = destinationR + 1;
+    c2 = desitinationC;
+
 }
 
-async function sendLoadRequest() {
-    document.querySelector('.container-input').style.display = 'none';
-    document.querySelector('.confirmation-popup').style.display = 'none';
-
-    document.getElementById('header').innerHTML = 'Calculating the fastest set of operations...';
-
-    formData = new FormData();
-    formData.append('load', toLoad);
-    formData.append('unload', selectedCells);
-
-    await fetch('/load', {
-        method: 'POST',
-        body: formData
+function resetGrid() {
+    const highlightedCells = document.querySelectorAll('.highlighted');
+    highlightedCells.forEach(cell => {
+        cell.classList.remove('highlighted');
     });
-    
-    toLoad = [];
-    selectedCells = [];
+}
+
+function highlightCell(row, col, color) {
+    const cellId = `cell-${row}-${col}`;
+    const cell = document.getElementById(cellId);
+    if (cell) {
+        cell.classList.add('highlighted');
+        cell.style.backgroundColor = color;
+    }
+}
+
+function updateStepDisplay() {
+    const stepCount = document.getElementById('stepCount');
+    stepCount.innerHTML = 'Move Containers - Step ' + (currentStep + 1);
+}
+
+function moveContainer(r1, c1, r2, c2) {
+    const originCell = document.getElementById(`cell-${r1}-${c1}`);
+    const destinationCell = document.getElementById(`cell-${r2}-${c2}`);
+
+    if (r2 != 0) {
+        destinationCell.innerHTML = originCell.innerHTML;
+        destinationCell.style.backgroundColor = 'rgb(63, 59, 59)';
+    }
+
+    originCell.innerHTML = '';
+    originCell.style.backgroundColor = 'white';
+}
+
+function finishTransfer() {
+    // TODO: post request to write updated manifest to desktop somewhere
+    window.location.href = '/';
 }
