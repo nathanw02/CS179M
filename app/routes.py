@@ -51,7 +51,9 @@ def loadRequest():
     if unload_items:
         unload_items = [(int(r) - 1, int(c)) for (r, c) in (cell.split('-')[1:] for cell in unload_items)]
 
-    steps = load(load_items, unload_items, currentManifest)
+    steps, newManifest = load(load_items, unload_items, currentManifest)
+
+    #TODO: write new manifest
 
     return {'steps': steps}
 

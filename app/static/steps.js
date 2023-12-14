@@ -74,10 +74,14 @@ function moveContainer(r1, c1, r2, c2) {
     if (r2 != 0) {
         destinationCell.innerHTML = originCell.innerHTML;
         destinationCell.style.backgroundColor = 'rgb(63, 59, 59)';
+    } else {
+        destinationCell.style.backgroundColor = 'black';
     }
 
-    originCell.innerHTML = '';
-    originCell.style.backgroundColor = 'white';
+    if ([r1, c1] != [0, 0]) {
+        originCell.innerHTML = '';
+        originCell.style.backgroundColor = 'white';
+    }
 }
 
 function finishTransfer() {
