@@ -268,3 +268,35 @@ class Node:
   def __lt__(self, other):
     return self.fn < other.fn
   
+def calculate(filename):  
+
+  puzzle = Puzzle()
+  puzzle.readfile(filename)
+  puzzle.formatContainers()
+  node = Node(0, containers, None, containerNames)
+  node.grid = containers
+
+  mid = len(containers) // 2
+
+  for col in containers[0:mid]:
+    node.left += sum(col)
+
+  for col in containers[mid:]:
+    node.right += sum(col)
+
+  node.balanceMass = (node.left + node.right) // 2
+  puzzle.balanceMass = node.balanceMass
+  puzzle.heavySide = 0 if node.left > node.right else 1
+
+  hq.heappush(traverseStates, node)
+
+  moves, names = puzzle.balance()
+
+  full_paths = puzzle.path(moves, node.grid)
+  for i, f in enumerate(full_paths):
+
+    print(f"\t{names[i]} --> {f}")
+
+  return [full_paths, names]
+
+calculate(r'app/tests/ShipCase4.txt')
