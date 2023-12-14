@@ -19,7 +19,7 @@
         
         <div id="action-btns" class="d-none">
             <button class="load-btn btn btn-light" onclick="redirectToLoadPage()">Load/Unload</button>
-            <button class="balance-btn btn btn-light">Balance</button>
+            <button class="balance-btn btn btn-light" onclick="doBalance()">Balance</button>
         </div>
 
         <div id="loginModal">
@@ -27,6 +27,14 @@
                 <label for="name">Enter your name:</label>
                 <input type="text" id="name" name="name" required>
                 <button type="button" onclick="submitLoginForm()" class="btn btn-success">Login</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="modalOverlay"></div>
+
+        <div class="container" id="balance-calc">
+            <div class="popup-content">
+                <h2>Calculating the fastest set of operations...</h2>
             </div>
         </div>
 

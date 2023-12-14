@@ -88,3 +88,35 @@ body {
     font-size: 24px;
     padding: 12px;
 }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+#balance-calc {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 40px;
+    border: 1px solid #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    text-align: center;
+    z-index: 1001;
+}
+
+.popup-content {
+    margin: 0 auto;
+    font-size: 24px;
+    margin-bottom: 20px;
+}

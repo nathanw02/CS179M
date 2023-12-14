@@ -4,7 +4,6 @@ import copy
 
 containers = []
 containerNames = []
-containerDecoys = {}
 generatedStates = [] 
 traverseStates = []
 visitedStates = []
@@ -12,32 +11,15 @@ visitedStates = []
 maxSize = 1
 
 class Puzzle:
-  def __init__(self):
+  def __init__(self, manifest):
     self.heavySide = -1
     self.balanceMass = -1
-
-  def readfile(self, filename): 
-    with open(filename, "r") as f:
-      for line in f:
-        line = line.strip()
-        if line:
-          parts = line.split(", ")
-          row, col = map(int, parts[0].strip()[1:-1].split(","))
-          row -= 1
-          col -= 1
-          weight = int(parts[1].strip()[1:-1])
-          if parts[-1] == "NAN":
-            containerDecoys[row, col] = [-1, ""]
-          else:
-            containerDecoys[row, col] = [weight, parts[-1]]
+    self.manifest = manifest
 
   def formatContainers(self):
-    rows, cols = zip(*containerDecoys.keys())
-    numRows, numCols = max(rows) + 1, max(cols) + 1
-
-    for col in range(numCols):
-      temp = [containerDecoys[row, col][0] for row in range(numRows)]
-      names = [containerDecoys[row, col][1] for row in range(numRows)]
+    for c in range(12):
+      temp = [self.manifest[r][c][0] for r in range(7, -1, -1)]
+      names = [self.manifest[r][c][1] for r in range(7, -1, -1)]
 
       containers.append(temp)
       containerNames.append(names)
@@ -268,10 +250,21 @@ class Node:
   def __lt__(self, other):
     return self.fn < other.fn
   
-def calculate(filename):  
+def formatPaths(paths):
+    res = []
 
-  puzzle = Puzzle()
-  puzzle.readfile(filename)
+    for path in paths:
+        startC, startR = path[0]
+        destC, destR = path[-1]
+        formatted = [7 - startR, startC, 7 - destR, destC]
+        res.append(formatted)
+    
+    return res
+
+def balance(manifest):
+  global containers, containerNames, generatedStates, traverseStates, visitedStates, maxSize
+  
+  puzzle = Puzzle(manifest)
   puzzle.formatContainers()
   node = Node(0, containers, None, containerNames)
   node.grid = containers
@@ -293,10 +286,20 @@ def calculate(filename):
   moves, names = puzzle.balance()
 
   full_paths = puzzle.path(moves, node.grid)
+  formatted = formatPaths(full_paths)
+  
   for i, f in enumerate(full_paths):
 
     print(f"\t{names[i]} --> {f}")
 
-  return [full_paths, names]
+  containers = []
+  containerNames = []
+  generatedStates = [] 
+  traverseStates = []
+  visitedStates = []
 
-calculate(r'app/tests/ShipCase4.txt')
+  maxSize = 1
+
+  return formatted
+
+#calculate(r'app/tests/ShipCase4.txt')
