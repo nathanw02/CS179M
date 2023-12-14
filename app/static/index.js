@@ -48,3 +48,9 @@ async function submitLoginForm() {
 function redirectToLoadPage() {
     window.location.href = '/load';
 }
+
+function doBalance() {
+    document.getElementById('modalOverlay').style.display = 'block';
+    document.getElementById("balance-calc").style.display = 'block';
+    window.location.href = '/balance';
+}

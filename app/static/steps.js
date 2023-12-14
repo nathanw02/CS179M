@@ -5,8 +5,17 @@ let r1, c1, r2, c2;
 function loadSteps(input) {
     steps = input;
     document.addEventListener('DOMContentLoaded', (event) => {
-        updateGridWithStep();
-        updateStepDisplay();
+        if (steps[0][0] == -1 && steps[0][1 == -1]) {
+            document.getElementById('confirmation-message').innerHTML = 'An error occured. Please try again.';
+            document.getElementById('confirmation').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        }else if (steps.length == 0) {
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('confirmation').style.display = 'block';
+        } else {
+            updateGridWithStep();
+            updateStepDisplay();
+        }
     });
 }
 
@@ -18,7 +27,7 @@ function nextStep() {
         updateStepDisplay();
     } else {
         document.getElementById('modalOverlay').style.display = 'block';
-        document.getElementById("confirmation").style.display = 'block';
+        document.getElementById('confirmation').style.display = 'block';
     }
 }
 

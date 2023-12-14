@@ -21,6 +21,8 @@ def parse(manifest):
             coord = coord[1:-1].split(',')
             weight = weight[1:-1]
             name = name.strip()
+            if name == 'NAN':
+                weight = -1
             row, col = 8 - int(coord[0]), int(coord[1]) - 1
 
             grid[row][col] = [int(weight), name, colors[row][col]]

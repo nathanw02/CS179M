@@ -1,6 +1,5 @@
-import json
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from algorithms.load import load
 from algorithms.balance import balance
 from util.parse_manifest import parse
@@ -13,7 +12,7 @@ currentUser = None
 TEMP_DIR = 'temp'
 currentManifest = None
 
-steps = []
+steps = [[-1, -1]]
 
 @app.route('/')
 def index():
@@ -57,16 +56,18 @@ def loadRequest():
     return {'steps': steps}
 
 
-@app.route('/balance', methods = ['GET', 'POST'])
+@app.route('/balance', methods = ['GET'])
 def balanceRequest():
-    if request.method == 'GET':
-        return render_template('steps.html')
-    
-    manifest = request.form.get('manifest')
+    global steps
+    if not currentManifest:
+        return redirect('/')
 
-    steps = balance(manifest)
+    try:
+        steps = balance(currentManifest)
+    except:
+        steps = [[-1, -1]]
 
-    return steps
+    return redirect('/steps')
 
 @app.route('/manifest', methods = ['POST'])
 def manifest():
