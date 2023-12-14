@@ -68,6 +68,15 @@ def findSpot(r, c, manifest, items):
     
     return bestMove
 
+def printManifest(manifest):
+    for row in manifest:
+        r = ''
+        for c in row:
+            r += c[1] + ('        ')
+
+        print(r)
+
+
 def unload(items, manifest):
     items = set(items)
     blocking = {}
@@ -88,33 +97,46 @@ def unload(items, manifest):
 
     currManifest = deepcopy(manifest)
 
+    for r in range(8):
+        for c in range(12):
+            currManifest[r][c].append((r, c))
+
+    # i = 0 # use i to debug loop
     while q:
         b, r, c = heapq.heappop(q)
-        if r < 0 or r == 8 or c < 0 or c == 12 or (r, c) in removed:
+        if r < 0 or r == 8 or c < 0 or c == 12 or currManifest[r][c][3] in removed:
             continue
         
         b = blockingAbove(r, c, currManifest)
+
+
+        # print(b, r, c, steps)
 
         if b == 0: # container is movable
             if (r, c) in items:
                 steps.append([r, c, -1, 0])
                 items.remove((r, c))
+                removed.add(currManifest[r][c][3])
                 currManifest[r][c] = [0, "UNUSED", manifest[r][c][2]]
-                removed.add((r, c))
                 if not items:
                     return (steps, currManifest)
             else:
                 under = blockingUnder(r, c, items)
                 if under:
                     r2, c2 = findSpot(r, c, currManifest, items)
+                    currManifest[r2][c2] = [manifest[r][c][0], manifest[r][c][1], manifest[r][c][2], currManifest[r][c][3]]
                     currManifest[r][c] = [0, "UNUSED", manifest[r][c][2]]
-                    currManifest[r2][c2] = [manifest[r][c][0], manifest[r][c][1], manifest[r][c][2]]
 
                     steps.append([r, c, r2, c2])
 
         else:
             heapq.heappush(q, (b - 1, r - 1, c))
             heapq.heappush(q, (b, r, c))
+
+        # i += 1
+
+        # if i == 35: 
+        #     break
 
 def findLoadSpot(manifest):
     valid = validCells(-1, 0, manifest)
