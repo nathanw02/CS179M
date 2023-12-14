@@ -12,7 +12,118 @@ visitedStates = []
 maxSize = 1
 
 class Puzzle:
-  pass
+  def __init__(self):
+    self.heavySide = -1
+    self.balanceMass = -1
+
+  def readfile(self, filename): 
+    with open(filename, "r") as f:
+      for line in f:
+        line = line.strip()
+        if line:
+          parts = line.split(", ")
+          row, col = map(int, parts[0].strip()[1:-1].split(","))
+          row -= 1
+          col -= 1
+          weight = int(parts[1].strip()[1:-1])
+          if parts[-1] == "NAN":
+            containerDecoys[row, col] = [-1, ""]
+          else:
+            containerDecoys[row, col] = [weight, parts[-1]]
+
+  def formatContainers(self):
+    rows, cols = zip(*containerDecoys.keys())
+    numRows, numCols = max(rows) + 1, max(cols) + 1
+
+    for col in range(numCols):
+      temp = [containerDecoys[row, col][0] for row in range(numRows)]
+      names = [containerDecoys[row, col][1] for row in range(numRows)]
+
+      containers.append(temp)
+      containerNames.append(names)
+
+  def balance(self): 
+    while traverseStates:
+      node = hq.heappop(traverseStates)
+
+      hq.heappush(visitedStates, node)
+
+      lowerWeightLimit = int(0.9 * self.balanceMass)
+      upperWeightLimit = int(1.1 * self.balanceMass)
+
+      rightWithinLimit = lowerWeightLimit < node.right < upperWeightLimit
+      leftWithinLimit = lowerWeightLimit < node.left < upperWeightLimit
+
+      if rightWithinLimit and leftWithinLimit:
+        moves, names = self.printSolution(node)
+        return (moves, names)
+
+      node.astar()
+
+  def path(self, moves, grid): # from harvard
+    full_paths = []
+    i = 0
+    for m in moves:
+      temp = []
+      startCopy = m[0]
+      endCopy = m[1]
+      start = m[0]
+      end = m[1]
+      temp.append(startCopy[:])
+
+      while start != end:
+        if start[0] < end[0]:
+          test = [start[0] + 1, start[1]]
+          if grid[test[0]][test[1]] == 0:
+            start = test
+          else:
+            start[1] += 1
+
+          temp.append(start[:])
+          continue
+
+        elif start[0] > end[0]:
+          test = [start[0] - 1, start[1]]
+          if grid[test[0]][test[1]] == 0:
+            start = test
+          else:
+            start[1] += 1
+
+          temp.append(start[:])
+          continue
+
+        elif start[1] > end[1]:
+          test = [start[0], start[1] - 1]
+          if grid[test[0]][test[1]] == 0:
+            start = test
+          else:
+            start[1] -= 1
+
+          temp.append(start[:])
+          continue
+
+      full_paths.append(temp)
+      t = grid[startCopy[0]][startCopy[1]]
+      grid[startCopy[0]][startCopy[1]] = 0
+      grid[endCopy[0]][endCopy[1]] = t
+
+    return full_paths
+
+  def printSolution(self, endNode): 
+    nodes = []
+    movesNeeded = []
+    containerNames = []
+
+    while endNode.parent:
+      nodes.append(endNode)
+      endNode = endNode.parent
+
+    nodes = nodes[::-1]
+    for n in nodes:
+      movesNeeded.append(n.movesNeeded)
+      containerNames.append(n.containerName)
+
+    return (movesNeeded, containerNames)
 
 class Node:
 
@@ -156,3 +267,4 @@ class Node:
 
   def __lt__(self, other):
     return self.fn < other.fn
+  
