@@ -12,7 +12,7 @@ currentUser = None
 TEMP_DIR = 'temp'
 currentManifest = None
 
-steps = [[-1, -1]]
+steps = []
 
 @app.route('/')
 def index():
@@ -47,10 +47,13 @@ def loadRequest():
     unload_items = request.form.get('unload').split(',')
 
     load_items = [item for item in load_items if item]
+    unload_items = [item for item in unload_items if item]
 
     if unload_items:
         unload_items = [(int(r) - 1, int(c)) for (r, c) in (cell.split('-')[1:] for cell in unload_items)]
-
+    else:
+        unload_items = []
+        
     steps, newManifest = load(load_items, unload_items, currentManifest)
 
     #TODO: write new manifest
@@ -64,10 +67,9 @@ def balanceRequest():
     if not currentManifest:
         return redirect('/')
 
-    try:
-        steps = balance(currentManifest)
-    except:
-        steps = [[-1, -1]]
+
+    steps = balance(currentManifest)
+
 
     return redirect('/steps')
 
