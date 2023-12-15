@@ -1,8 +1,8 @@
 import os
 from flask import Flask, render_template, request, redirect
-from algorithms.load import load
-from algorithms.balance import balance
-from util.parse_manifest import parse
+from .algorithms.load import load
+from .algorithms.balance import balance
+from .util.parse_manifest import parse
 
 app = Flask(__name__)
 
@@ -95,6 +95,3 @@ def manifest():
 @app.route('/complete', methods = ['POST'])
 def complete():
     pass
-
-if __name__ == "__main__": 
-    app.run()
