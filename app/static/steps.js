@@ -4,8 +4,9 @@ let r1, c1, r2, c2;
 
 function loadSteps(input) {
     steps = input;
+    console.log(steps)
     document.addEventListener('DOMContentLoaded', (event) => {
-        if (steps[0][0] == -1 && steps[0][1 == -1]) {
+        if (steps.toString() == [-1, -1].toString()) {
             document.getElementById('confirmation-message').innerHTML = 'An error occured. Please try again.';
             document.getElementById('confirmation').style.display = 'block';
             document.getElementById('modalOverlay').style.display = 'block';
@@ -78,7 +79,7 @@ function moveContainer(r1, c1, r2, c2) {
         destinationCell.style.backgroundColor = 'black';
     }
 
-    if ([r1, c1] != [0, 0]) {
+    if ([r1, c1].toString() != [0, 0].toString()) {
         originCell.innerHTML = '';
         originCell.style.backgroundColor = 'white';
     }

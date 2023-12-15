@@ -7,9 +7,15 @@ def load(load_items, unload_items, manifest):
     for r, c in unload_items:
         res.append([r, c, -1, 0])
 
-    unloadSteps, newManifest = unload(unload_items, manifest)
+    unloadSteps = []
+    loadSteps = []
+    newManifest = manifest
 
-    loadSteps, newManifest = loadItems(load_items, newManifest)
+    if unload_items:
+        unloadSteps, newManifest = unload(unload_items, manifest)
+        loadSteps, newManifest = loadItems(load_items, newManifest)
+    else:
+        loadSteps, newManifest = loadItems(load_items, manifest)
 
     return (unloadSteps + loadSteps, newManifest)
 

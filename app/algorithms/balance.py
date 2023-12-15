@@ -283,7 +283,12 @@ def balance(manifest):
 
   hq.heappush(traverseStates, node)
 
-  moves, names = puzzle.balance()
+  result = puzzle.balance()
+
+  if not result: # already balanced
+    return []
+  
+  moves, names = result
 
   full_paths = puzzle.path(moves, node.grid)
   formatted = formatPaths(full_paths)
